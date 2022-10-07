@@ -1,5 +1,7 @@
-import {useState} from "react";
+import {useState, useRef, useEffect} from "react";
 import React from "react";
+import {Simulate} from "react-dom/test-utils";
+import input = Simulate.input;
 
 const users = [
     {name: 'Darren', age: 20},
@@ -10,8 +12,17 @@ const users = [
 
 
 const UserSearch: React.FC = () => {
+    const inputRef = useRef<HTMLInputElement | null>(null) // might point to null but might point to input element
     const [name, setName] = useState('')
     const [user, setUser] = useState<{ name: string, age: number } | undefined>()
+
+    useEffect(() => {
+        // can get rid of this block by using inputRef.current?.focus()
+        if (!inputRef.current) { // makes sure inputRef is defined - type guard
+            return
+        }
+        inputRef.current.focus()
+    }, [])
 
     const userSearchButtonClicked = () => {
         const foundUser = users.find((x) => {
@@ -25,7 +36,7 @@ const UserSearch: React.FC = () => {
     // user && user.name only use value of user.name if user is NOT undefineds
     return <div>
         UserSearch
-        <input value={name} onChange={e => setName(e.target.value)} />
+        <input ref={inputRef} value={name} onChange={e => setName(e.target.value)} />
         <button onClick={userSearchButtonClicked}>Search</button>
         <div>
             {user && user.name}
